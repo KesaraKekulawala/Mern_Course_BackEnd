@@ -1,9 +1,19 @@
 import Product from "../models/product.js";
 
-export function getProducts(req, res) {
-    Product.find().then((data) => {
-        res.json(data);
-    });
+export async function getProducts(req, res) {
+    //Product.find().then((data) => {
+    //    res.json(data);
+    //});
+    try {
+        const products = await Product.find();
+        res.json(products);
+        
+    } catch (err) {
+        res.json({
+            message: "Error getting products",
+            error: err
+        })
+    }
 }
 
 export function saveProduct(req, res) { 
@@ -15,6 +25,13 @@ export function saveProduct(req, res) {
         res.status(403).json({
             message:"Unauthorized"
 
+        })
+        return
+       }
+
+       if(req.user.role != "admin"){
+        res.status(403).json({
+            message:"Unauthorized"
         })
         return
        }
