@@ -1,12 +1,17 @@
 import Product from "../models/product.js";
+import { isAdmin } from "./userController.js";
 
 export async function getProducts(req, res) {
-    //Product.find().then((data) => {
-    //    res.json(data);
-    //});
+
     try {
-        const products = await Product.find();
-        res.json(products);
+        if(isAdmin(req)){
+           const products = await Product.find();
+           res.json(products); 
+        }else{
+            const products = await Product.find({isAvailable: true});
+            res.json(products);
+        }
+        
         
     } catch (err) {
         res.json({
@@ -17,29 +22,17 @@ export async function getProducts(req, res) {
 }
 
 export function saveProduct(req, res) { 
-       console.log(req.user);
-
-       console.log(req.body);
-
-       if(req.user == null){
+    
+    if(!isAdmin(req)){
         res.status(403).json({
-            message:"Unauthorized"
-
+            message: "Unauthorized to add a product"
         })
         return
-       }
 
-       if(req.user.role != "admin"){
-        res.status(403).json({
-            message:"Unauthorized"
-        })
-        return
-       }
-    const product = new Product({
-        name: req.body.name,
-        price: req.body.price,
-        description: req.body.description
-    })
+    }
+    const product = new Product(
+        req.body
+    );
     product.save().then(() => {
         res.json({
             message: "Product added successfully"
@@ -49,4 +42,27 @@ export function saveProduct(req, res) {
             message: "Error adding product"
         });
     });
+}
+
+export async function deleteProduct(req, res) {
+    if(!isAdmin(req)){
+        res.status(403).json({
+            message: "Unauthorized to delete a product"
+        })
+        return
+    }
+
+    try {
+        await Product.deleteOne({productId: req.params.productId}) 
+
+        res.json({
+            message: "Product deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error deleting product"
+        });
+        
+    }
+   
 }

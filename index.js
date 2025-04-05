@@ -1,8 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import Student from './models/student.js';
-import studentRouter from './routes/studentRouter.js';
 import productRouter from './routes/productRoutes.js';
 import userRouter from './routes/userRoute.js';
 import jwt from 'jsonwebtoken'; 
@@ -52,7 +50,7 @@ mongoose.connect("mongodb+srv://admin:123@cluster0.4b8a1.mongodb.net/?retryWrite
     console.log("Error connecting to database")
 })
 
-app.use('/students', studentRouter);
+
 app.use('/products', productRouter);
 app.use('/users', userRouter);
 
